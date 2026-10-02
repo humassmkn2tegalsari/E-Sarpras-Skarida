@@ -411,7 +411,7 @@
                 </div>
                 <div class="glass-card p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input type="text" id="filterPinjamNama" placeholder="Cari Nama Alat..." oninput="applyFilter('peminjaman')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-amber-500/20">
-                    <select id="filterPinjamPeminjam" onchange="applyFilter('peminjaman')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Peminjam</option><option value="Guru">Guru</option><option value="Eksternal">Eksternal</option></select>
+                    <select id="filterPinjamPeminjam" onchange="applyFilter('peminjaman')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Peminjam</option><option value="Guru">Guru</option><option value="Lainnya">Lainnya</option></select>
                     <button onclick="resetFilter('peminjaman')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-xs font-black uppercase hover:bg-slate-300 transition">Reset</button>
                 </div>
                 <div class="table-container glass-card rounded-2xl p-2 max-h-[500px] overflow-y-auto">
@@ -1047,7 +1047,7 @@
                     </div>
                     <div class="w-full mb-2">${satuanOptionsHTML.replace('<select class="', '<select id="pinjam_satuan" class="')}</div>
                     <select id="pinjam_ket" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20" required>
-                        <option value="Guru">Guru</option><option value="Eksternal">Eksternal</option>
+                        <option value="Guru">Guru</option><option value="Lainnya">Lainnya</option>
                     </select>
                     <textarea id="pinjam_keterangan" placeholder="Keterangan Peminjaman (Contoh: Dipinjam 3 hari untuk kegiatan praktikum)" rows="3" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20" required></textarea>
                     ${renderUploadSection('foto_pinjam', 'Unggah Foto Barang Saat Dipinjam (Maks. 5 Foto)', true)}
