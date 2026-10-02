@@ -182,7 +182,7 @@
         let currentEditItem = null, selectedNewStatus = null, currentEditRow = null, currentEditSheet = null;
         lucide.createIcons();
 
-        const satuanOptionsHTML = `
+                const satuanOptionsHTML = `
             <select class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
                 <option value="" disabled selected>Pilih Satuan</option>
                 <optgroup label="Satuan Umum">
@@ -191,6 +191,12 @@
                     <option value="Rim">Rim</option><option value="Set">Set</option><option value="Karton / Boks / Dus">Karton / Boks / Dus</option>
                     <option value="Pak / Pack">Pak / Pack</option><option value="Ba">Ba</option><option value="Palet">Palet</option>
                 </optgroup>
+                <optgroup label="Satuan Panjang">
+                    <option value="Kilometer (km)">Kilometer (km)</option>
+                    <option value="meter (m)">meter (m)</option>
+                    <option value="centimeter (cm)">centimeter (cm)</option>
+                    <option value="milimeter (mm)">milimeter (mm)</option>
+                </optgroup>
                 <optgroup label="Satuan Berat">
                     <option value="Kilogram (kg)">Kilogram (kg)</option><option value="gram (g)">gram (g)</option>
                     <option value="pon (lb)">pon (lb)</option><option value="ons">ons</option>
@@ -198,7 +204,7 @@
                 <optgroup label="Satuan Volume">
                     <option value="Liter (L)">Liter (L)</option><option value="mililiter (ml)">mililiter (ml)</option><option value="galon (gal)">galon (gal)</option>
                 </optgroup>
-                <optgroup label="Satuan Luas/Volume">
+                <optgroup label="Satuan Luas">
                     <option value="Meter persegi (m²)">Meter persegi (m²)</option><option value="meter kubik (m³)">meter kubik (m³)</option>
                 </optgroup>
             </select>`;
