@@ -562,78 +562,77 @@
 }
 
         function renderInventarisTable(data) {
-            const tbody = document.getElementById('tbodyInventaris');
-            if (!tbody) return; tbody.innerHTML = '';
-            const isAdmin = currentUser && currentUser.role === 'admin';
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '14' : '13'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-            data.slice(-50).reverse().forEach(row => {
-                const tr = document.createElement('tr');
-                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-                const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
-                const harga = row.harga ? 'Rp ' + Number(row.harga).toLocaleString('id-ID') : '-';
-                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-                const makeMultipleLinks = (urlStr) => {
-                    if (!urlStr || urlStr === '-') return '-';
-                    const urls = String(urlStr).split(' | ').filter(u => u.trim());
-                    if (urls.length === 0) return '-';
-                    return urls.map((u, i) => `<a href="${u.trim()}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Bukti ${i+1}</a>`).join('<br>');
-                };
-                tr.innerHTML = `<td>${tgl}</td><td>${row.jenis || '-'}</td><td class="font-bold text-slate-700">${row.nama || '-'}</td><td>${row.kode || '-'}</td><td>${tglPerolehan}</td><td><span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md text-[9px] font-black">${row.sumber_dana || '-'}</span></td><td>${row.jumlah || '-'}</td><td>${row.satuan || '-'}</td><td>${harga}</td><td>${row.kondisi || '-'}</td><td>${row.lokasi || '-'}</td><td>${makeMultipleLinks(row.bukti_pembelian)}</td><td>${makeLink(row.foto_barang)}</td>${getActionButtons('Inventaris', row)}`;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
+    const tbody = document.getElementById('tbodyInventaris');
+    if (!tbody) return; tbody.innerHTML = '';
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '14' : '13'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+    data.slice(-50).reverse().forEach(row => {
+        const tr = document.createElement('tr');
+        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+        const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
+        const harga = row.harga ? 'Rp ' + Number(row.harga).toLocaleString('id-ID') : '-';
+        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+        const makeMultipleLinks = (urlStr) => {
+            if (!urlStr || urlStr === '-') return '-';
+            const urls = String(urlStr).split(' | ').filter(u => u.trim());
+            if (urls.length === 0) return '-';
+            return urls.map((u, i) => `<a href="${u.trim()}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Bukti ${i+1}</a>`).join('<br>');
+        };
+        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="align-middle">${row.jenis || '-'}</td><td class="font-bold text-slate-700 align-middle">${row.nama || '-'}</td><td class="align-middle">${row.kode || '-'}</td><td class="align-middle">${tglPerolehan}</td><td class="align-middle"><span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md text-[9px] font-black">${row.sumber_dana || '-'}</span></td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${harga}</td><td class="align-middle">${row.kondisi || '-'}</td><td class="align-middle">${row.lokasi || '-'}</td><td class="align-middle">${makeMultipleLinks(row.bukti_pembelian)}</td><td class="align-middle">${makeLink(row.foto_barang)}</td>${getActionButtons('Inventaris', row)}`;
+        tbody.appendChild(tr);
+    });
+    lucide.createIcons();
+}
 
         function renderBantuanTable(data) {
-            const tbody = document.getElementById('tbodyBantuan');
-            if (!tbody) return; tbody.innerHTML = '';
-            const isAdmin = currentUser && currentUser.role === 'admin';
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '11' : '10'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-            data.slice(-50).reverse().forEach(row => {
-                const tr = document.createElement('tr');
-                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-                const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
-                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-emerald-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-                tr.innerHTML = `<td>${tgl}</td><td class="font-bold text-slate-700">${row.nama_barang || '-'}</td><td>${tglPerolehan}</td><td>${row.jumlah || '-'}</td><td>${row.satuan || '-'}</td><td>${row.merek || '-'}</td><td><span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black">${row.sumber_bantuan || '-'}</span></td><td>${row.kondisi || '-'}</td><td>${row.lokasi || '-'}</td><td>${makeLink(row.foto_barang)}</td>${getActionButtons('Bantuan', row)}`;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
+    const tbody = document.getElementById('tbodyBantuan');
+    if (!tbody) return; tbody.innerHTML = '';
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '11' : '10'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+    data.slice(-50).reverse().forEach(row => {
+        const tr = document.createElement('tr');
+        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+        const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
+        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-emerald-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td><td class="align-middle">${tglPerolehan}</td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${row.merek || '-'}</td><td class="align-middle"><span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black">${row.sumber_bantuan || '-'}</span></td><td class="align-middle">${row.kondisi || '-'}</td><td class="align-middle">${row.lokasi || '-'}</td><td class="align-middle">${makeLink(row.foto_barang)}</td>${getActionButtons('Bantuan', row)}`;
+        tbody.appendChild(tr);
+    });
+    lucide.createIcons();
+}
 
         function renderRusakTable(data) {
-            const tbody = document.getElementById('tbodyRusak');
-            if (!tbody) return; tbody.innerHTML = '';
-            const isAdmin = currentUser && currentUser.role === 'admin';
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '10' : '9'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-            data.slice(-50).reverse().forEach(row => {
-                const tr = document.createElement('tr');
-                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-rose-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-                const status = row.status || 'Rusak';
-                const statusClass = status === 'Sudah Diperbaiki' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
-                tr.innerHTML = `<td>${tgl}</td><td class="font-bold text-slate-700">${row.nama_barang || '-'}</td><td>${row.lokasi || '-'}</td><td>${row.jumlah || '-'}</td><td>${row.satuan || '-'}</td><td>${row.deskripsi_kerusakan || '-'}</td><td>${makeLink(row.foto_rusak)}</td><td>${row.pelapor || '-'}</td><td><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>${getActionButtons('LaporanRusak', row)}`;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
-
+    const tbody = document.getElementById('tbodyRusak');
+    if (!tbody) return; tbody.innerHTML = '';
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '10' : '9'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+    data.slice(-50).reverse().forEach(row => {
+        const tr = document.createElement('tr');
+        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-rose-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+        const status = row.status || 'Rusak';
+        const statusClass = status === 'Sudah Diperbaiki' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
+        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td><td class="align-middle">${row.lokasi || '-'}</td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${row.deskripsi_kerusakan || '-'}</td><td class="align-middle">${makeLink(row.foto_rusak)}</td><td class="align-middle">${row.pelapor || '-'}</td><td class="align-middle"><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>${getActionButtons('LaporanRusak', row)}`;
+        tbody.appendChild(tr);
+    });
+    lucide.createIcons();
+}
+        
         function renderPeminjamanTable(data) {
-            const tbody = document.getElementById('tbodyPeminjaman');
-            if (!tbody) return; tbody.innerHTML = '';
-            const isAdmin = currentUser && currentUser.role === 'admin';
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '9' : '8'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-            data.slice(-50).reverse().forEach(row => {
-                const tr = document.createElement('tr');
-                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-amber-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-                const status = row.status || 'Dipinjam';
-                const statusClass = status === 'Telah Dikembalikan' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
-                tr.innerHTML = `<td>${tgl}</td><td class="font-bold text-slate-700">${row.nama_alat || '-'}</td><td>${row.peminjam || '-'}</td><td>${row.jumlah || '-'}</td><td>${row.satuan || '-'}</td><td>${row.keterangan || '-'}</td><td>${makeLink(row.foto_barang)}</td><td><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>${getActionButtons('Peminjaman', row)}`;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
-
+    const tbody = document.getElementById('tbodyPeminjaman');
+    if (!tbody) return; tbody.innerHTML = '';
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '9' : '8'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+    data.slice(-50).reverse().forEach(row => {
+        const tr = document.createElement('tr');
+        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-amber-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+        const status = row.status || 'Dipinjam';
+        const statusClass = status === 'Telah Dikembalikan' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
+        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="font-bold text-slate-700 align-middle">${row.nama_alat || '-'}</td><td class="align-middle">${row.peminjam || '-'}</td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${row.keterangan || '-'}</td><td class="align-middle">${makeLink(row.foto_barang)}</td><td class="align-middle"><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>${getActionButtons('Peminjaman', row)}`;
+        tbody.appendChild(tr);
+    });
+    lucide.createIcons();
+}
         function renderPengeluaranTable(data) {
     const tbody = document.getElementById('tbodyPengeluaran');
     if (!tbody) return; tbody.innerHTML = '';
