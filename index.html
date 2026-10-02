@@ -270,7 +270,7 @@
             const menus = [];
             if (currentUser.role === 'admin') { menus.push({ id: 'dashboard', label: 'Dashboard Data', icon: 'layout-dashboard' }); menus.push({ id: 'inputBantuan', label: 'Input Bantuan', icon: 'gift' }); }
             if (currentUser.role === 'bendahara' || currentUser.role === 'admin') { menus.push({ id: 'inputBarang', label: 'Input Barang/Bahan', icon: 'package-plus' }); }
-            menus.push({ id: 'laporanRusak', label: 'Lapor Alat/Barang Rusak', icon: 'triangle-alert' });
+            menus.push({ id: 'laporanRusak', label: 'Lapor Barang Rusak', icon: 'triangle-alert' });
             menus.push({ id: 'peminjaman', label: 'Peminjaman Barang', icon: 'hand-platter' });
             menus.push({ id: 'pengeluaran', label: 'Pengeluaran Barang', icon: 'package-minus' });
 
@@ -1039,7 +1039,7 @@
 
         function renderFormLaporanRusak(container) {
             container.innerHTML = `
-                <h2 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2"><i data-lucide="triangle-alert" class="w-5 h-5 text-rose-500"></i> Laporan Alat/Barang Rusak</h2>
+                <h2 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2"><i data-lucide="triangle-alert" class="w-5 h-5 text-rose-500"></i> Laporan Barang Rusak</h2>
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" id="rusak_nama" placeholder="Nama Barang Rusak" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500/20" required>
@@ -1306,7 +1306,7 @@
             }
             
             const data = { action: "peminjaman", nama_alat: nama, keterangan_peminjam: ket, jumlah: parseInt(jumlah) || 1, satuan, keterangan, foto_barang: currentImagesBase64, peminjam: currentUser.nama };
-            await sendData(data, "btnSubmitPinjam", "Alat yang sudah dipinjam dapat dirawat dan dikembalikan segera maksimal 2 hari setelah peminjaman.", "amber");
+            await sendData(data, "btnSubmitPinjam", "Peminjaman barang berhasil diajukan!", "amber");
             
             document.getElementById('pinjam_nama').value = '';
             document.getElementById('pinjam_ket').value = 'Guru';
