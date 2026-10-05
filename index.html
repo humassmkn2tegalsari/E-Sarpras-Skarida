@@ -61,9 +61,26 @@
         .nav-btn.active { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); }
         .table-container { overflow-x: auto; }
         .custom-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        .custom-table th { background: rgba(99, 102, 241, 0.1); color: #4f46e5; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px; text-align: left; position: sticky; top: 0; }
+        
+        /* HEADER TABEL STICKY & RATA TENGAH */
+        .custom-table th { 
+            background: rgba(240, 244, 255, 0.95); 
+            backdrop-filter: blur(8px);
+            color: #4f46e5; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            padding: 12px; 
+            text-align: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 20; 
+            border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+        }
         .custom-table td { padding: 12px; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .custom-table tr:hover td { background: rgba(99, 102, 241, 0.03); }
+        
         .tab-btn {
             padding: 0.75rem 1.5rem; border-radius: 1rem; font-weight: 800; font-size: 0.75rem;
             text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s ease;
@@ -180,9 +197,14 @@
         let allInventoryData = [], allBantuanData = [], allRusakData = [], allPeminjamanData = [], allPengeluaranData = [];
         let kodeBarangData = [];
         let currentEditItem = null, selectedNewStatus = null, currentEditRow = null, currentEditSheet = null;
+        
+        // ================= PAGINATION STATE =================
+        let currentPageState = { inventaris: 1, bantuan: 1, rusak: 1, peminjaman: 1, pengeluaran: 1 };
+        const ROWS_PER_PAGE = 10;
+
         lucide.createIcons();
 
-                const satuanOptionsHTML = `
+        const satuanOptionsHTML = `
             <select class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
                 <option value="" disabled selected>Pilih Satuan</option>
                 <optgroup label="Satuan Umum">
@@ -337,23 +359,28 @@
 
         function renderInventarisDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
+            const totalData = allInventoryData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2"><i data-lucide="package" class="w-5 h-5 text-indigo-500"></i> Dashboard Inventaris</h3>
+                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
+                        <i data-lucide="package" class="w-5 h-5 text-indigo-500"></i> 
+                        Dashboard Inventaris 
+                        <span class="ml-2 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                    </h3>
                     <button onclick="exportToExcel('Inventaris')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
                 <div class="glass-card p-4 rounded-2xl mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                    <input type="text" id="filterNama" placeholder="Cari Nama..." oninput="applyFilter('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20">
-                    <select id="filterTanggal" onchange="applyFilter('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Tanggal</option></select>
-                    <select id="filterSumber" onchange="applyFilter('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Sumber</option><option value="BOS">BOS</option><option value="BPOPP">BPOPP</option><option value="PSM">PSM</option></select>
-                    <select id="filterKondisi" onchange="applyFilter('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Kondisi</option><option value="Baik">Baik</option><option value="Rusak Ringan">Rusak Ringan</option><option value="Rusak Berat">Rusak Berat</option></select>
-                    <input type="text" id="filterLokasi" placeholder="Cari Lokasi..." oninput="applyFilter('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20">
+                    <input type="text" id="filterNama" placeholder="Cari Nama..." oninput="handleFilterChange('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20">
+                    <select id="filterTanggal" onchange="handleFilterChange('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Tanggal</option></select>
+                    <select id="filterSumber" onchange="handleFilterChange('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Sumber</option><option value="BOS">BOS</option><option value="BPOPP">BPOPP</option><option value="PSM">PSM</option></select>
+                    <select id="filterKondisi" onchange="handleFilterChange('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Kondisi</option><option value="Baik">Baik</option><option value="Rusak Ringan">Rusak Ringan</option><option value="Rusak Berat">Rusak Berat</option></select>
+                    <input type="text" id="filterLokasi" placeholder="Cari Lokasi..." oninput="handleFilterChange('inventaris')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20">
                     <button onclick="resetFilter('inventaris')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-xs font-black uppercase hover:bg-slate-300 transition">Reset</button>
                 </div>
                 <div class="table-container glass-card rounded-2xl p-2 max-h-[500px] overflow-y-auto">
                     <table class="custom-table" id="tableInventaris">
-                        <thead><tr><th>Tanggal</th><th>Jenis</th><th>Nama</th><th>Kode</th><th>Tgl. Perolehan</th><th>Sumber</th><th>Jml</th><th>Satuan</th><th>Harga</th><th>Kondisi</th><th>Lokasi</th><th>Bukti</th><th>Foto</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
-                        <tbody id="tbodyInventaris"><tr><td colspan="${isAdmin ? '14' : '13'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
+                        <thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Nama</th><th>Kode</th><th>Tgl. Perolehan</th><th>Sumber</th><th>Jml</th><th>Satuan</th><th>Harga</th><th>Kondisi</th><th>Lokasi</th><th>Bukti</th><th>Foto</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
+                        <tbody id="tbodyInventaris"><tr><td colspan="${isAdmin ? '15' : '14'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
                     </table>
                 </div>`;
             fetchInventoryData();
@@ -361,21 +388,26 @@
 
         function renderBantuanDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
+            const totalData = allBantuanData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2"><i data-lucide="gift" class="w-5 h-5 text-emerald-500"></i> Dashboard Bantuan</h3>
+                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
+                        <i data-lucide="gift" class="w-5 h-5 text-emerald-500"></i> 
+                        Dashboard Bantuan 
+                        <span class="ml-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                    </h3>
                     <button onclick="exportToExcel('Bantuan')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
                 <div class="glass-card p-4 rounded-2xl mb-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <input type="text" id="filterBantuanNama" placeholder="Cari Nama..." oninput="applyFilter('bantuan')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500/20">
-                    <select id="filterBantuanTanggal" onchange="applyFilter('bantuan')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Tanggal</option></select>
-                    <select id="filterBantuanSumber" onchange="applyFilter('bantuan')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Sumber</option><option value="Pemerintah">Pemerintah</option><option value="Hibah Sekolah Lain">Hibah Sekolah Lain</option></select>
+                    <input type="text" id="filterBantuanNama" placeholder="Cari Nama..." oninput="handleFilterChange('bantuan')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500/20">
+                    <select id="filterBantuanTanggal" onchange="handleFilterChange('bantuan')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Tanggal</option></select>
+                    <select id="filterBantuanSumber" onchange="handleFilterChange('bantuan')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Sumber</option><option value="Pemerintah">Pemerintah</option><option value="Hibah Sekolah Lain">Hibah Sekolah Lain</option></select>
                     <button onclick="resetFilter('bantuan')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-xs font-black uppercase hover:bg-slate-300 transition">Reset</button>
                 </div>
                 <div class="table-container glass-card rounded-2xl p-2 max-h-[500px] overflow-y-auto">
                     <table class="custom-table" id="tableBantuan">
-                        <thead><tr><th>Tanggal</th><th>Nama Barang</th><th>Tgl. Perolehan</th><th>Jml</th><th>Satuan</th><th>Merek</th><th>Sumber</th><th>Kondisi</th><th>Lokasi</th><th>Foto</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
-                        <tbody id="tbodyBantuan"><tr><td colspan="${isAdmin ? '11' : '10'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
+                        <thead><tr><th>No</th><th>Tanggal</th><th>Nama Barang</th><th>Tgl. Perolehan</th><th>Jml</th><th>Satuan</th><th>Merek</th><th>Sumber</th><th>Kondisi</th><th>Lokasi</th><th>Foto</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
+                        <tbody id="tbodyBantuan"><tr><td colspan="${isAdmin ? '12' : '11'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
                     </table>
                 </div>`;
             fetchBantuanData();
@@ -383,20 +415,25 @@
 
         function renderRusakDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
+            const totalData = allRusakData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2"><i data-lucide="triangle-alert" class="w-5 h-5 text-rose-500"></i> Dashboard Barang Rusak</h3>
+                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
+                        <i data-lucide="triangle-alert" class="w-5 h-5 text-rose-500"></i> 
+                        Dashboard Barang Rusak 
+                        <span class="ml-2 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                    </h3>
                     <button onclick="exportToExcel('Rusak')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
                 <div class="glass-card p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input type="text" id="filterRusakNama" placeholder="Cari Nama Barang..." oninput="applyFilter('rusak')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-rose-500/20">
-                    <input type="text" id="filterRusakLokasi" placeholder="Cari Lokasi..." oninput="applyFilter('rusak')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-rose-500/20">
+                    <input type="text" id="filterRusakNama" placeholder="Cari Nama Barang..." oninput="handleFilterChange('rusak')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-rose-500/20">
+                    <input type="text" id="filterRusakLokasi" placeholder="Cari Lokasi..." oninput="handleFilterChange('rusak')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-rose-500/20">
                     <button onclick="resetFilter('rusak')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-xs font-black uppercase hover:bg-slate-300 transition">Reset</button>
                 </div>
                 <div class="table-container glass-card rounded-2xl p-2 max-h-[500px] overflow-y-auto">
                     <table class="custom-table" id="tableRusak">
-                        <thead><tr><th>Tanggal</th><th>Nama Barang</th><th>Lokasi</th><th>Jml</th><th>Satuan</th><th>Deskripsi</th><th>Foto</th><th>Pelapor</th><th>Status</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
-                        <tbody id="tbodyRusak"><tr><td colspan="${isAdmin ? '10' : '9'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
+                        <thead><tr><th>No</th><th>Tanggal</th><th>Nama Barang</th><th>Lokasi</th><th>Jml</th><th>Satuan</th><th>Deskripsi</th><th>Foto</th><th>Pelapor</th><th>Status</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
+                        <tbody id="tbodyRusak"><tr><td colspan="${isAdmin ? '11' : '10'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
                     </table>
                 </div>`;
             fetchRusakData();
@@ -404,20 +441,25 @@
 
         function renderPeminjamanDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
+            const totalData = allPeminjamanData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2"><i data-lucide="hand-platter" class="w-5 h-5 text-amber-500"></i> Dashboard Peminjaman</h3>
+                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
+                        <i data-lucide="hand-platter" class="w-5 h-5 text-amber-500"></i> 
+                        Dashboard Peminjaman 
+                        <span class="ml-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                    </h3>
                     <button onclick="exportToExcel('Peminjaman')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
                 <div class="glass-card p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input type="text" id="filterPinjamNama" placeholder="Cari Nama Alat..." oninput="applyFilter('peminjaman')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-amber-500/20">
-                    <select id="filterPinjamPeminjam" onchange="applyFilter('peminjaman')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Peminjam</option><option value="Guru">Guru</option><option value="Tenaga Kependidikan">Tenaga Kependidikan</option><option value="Lainnya">Lainnya</option></select>
+                    <input type="text" id="filterPinjamNama" placeholder="Cari Nama Alat..." oninput="handleFilterChange('peminjaman')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-amber-500/20">
+                    <select id="filterPinjamPeminjam" onchange="handleFilterChange('peminjaman')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none"><option value="">Semua Peminjam</option><option value="Guru">Guru</option><option value="Tenaga Kependidikan">Tenaga Kependidikan</option><option value="Lainnya">Lainnya</option></select>
                     <button onclick="resetFilter('peminjaman')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-xs font-black uppercase hover:bg-slate-300 transition">Reset</button>
                 </div>
                 <div class="table-container glass-card rounded-2xl p-2 max-h-[500px] overflow-y-auto">
                     <table class="custom-table" id="tablePeminjaman">
-                        <thead><tr><th>Tanggal</th><th>Nama Alat</th><th>Peminjam</th><th>Jml</th><th>Satuan</th><th>Keterangan</th><th>Foto</th><th>Status</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
-                        <tbody id="tbodyPeminjaman"><tr><td colspan="${isAdmin ? '9' : '8'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
+                        <thead><tr><th>No</th><th>Tanggal</th><th>Nama Alat</th><th>Peminjam</th><th>Jml</th><th>Satuan</th><th>Keterangan</th><th>Foto</th><th>Status</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
+                        <tbody id="tbodyPeminjaman"><tr><td colspan="${isAdmin ? '10' : '9'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
                     </table>
                 </div>`;
             fetchPeminjamanData();
@@ -425,20 +467,25 @@
 
         function renderPengeluaranDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
+            const totalData = allPengeluaranData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2"><i data-lucide="package-minus" class="w-5 h-5 text-orange-500"></i> Dashboard Pengeluaran Barang</h3>
+                    <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
+                        <i data-lucide="package-minus" class="w-5 h-5 text-orange-500"></i> 
+                        Dashboard Pengeluaran Barang 
+                        <span class="ml-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                    </h3>
                     <button onclick="exportToExcel('Pengeluaran')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
                 <div class="glass-card p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input type="text" id="filterKeluarNama" placeholder="Cari Nama Barang..." oninput="applyFilter('pengeluaran')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20">
-                    <input type="text" id="filterKeluarPenerima" placeholder="Cari Nama Penerima..." oninput="applyFilter('pengeluaran')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20">
+                    <input type="text" id="filterKeluarNama" placeholder="Cari Nama Barang..." oninput="handleFilterChange('pengeluaran')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20">
+                    <input type="text" id="filterKeluarPenerima" placeholder="Cari Nama Penerima..." oninput="handleFilterChange('pengeluaran')" class="px-3 py-2 bg-white/50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20">
                     <button onclick="resetFilter('pengeluaran')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-xs font-black uppercase hover:bg-slate-300 transition">Reset</button>
                 </div>
                 <div class="table-container glass-card rounded-2xl p-2 max-h-[500px] overflow-y-auto">
                     <table class="custom-table" id="tablePengeluaran">
-                        <thead><tr><th>Tgl. Input</th><th>Tgl. Pengeluaran</th><th>Nama Barang</th><th>Jumlah</th><th>Satuan</th><th>Peruntukan</th><th>Tgl. Penyerahan</th><th>Penerima</th><th>Oleh</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
-                        <tbody id="tbodyPengeluaran"><tr><td colspan="${isAdmin ? '10' : '9'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
+                        <thead><tr><th>No</th><th>Tgl. Input</th><th>Tgl. Pengeluaran</th><th>Nama Barang</th><th>Jumlah</th><th>Satuan</th><th>Peruntukan</th><th>Tgl. Penyerahan</th><th>Penerima</th><th>Oleh</th>${isAdmin ? '<th>Aksi</th>' : ''}</tr></thead>
+                        <tbody id="tbodyPengeluaran"><tr><td colspan="${isAdmin ? '11' : '10'}" class="text-center py-8 text-slate-400">Memuat data...</td></tr></tbody>
                     </table>
                 </div>`;
             fetchPengeluaranData();
@@ -453,7 +500,7 @@
                     populateDateOptions('filterTanggal', allInventoryData, 'tanggal_perolehan');
                     applyFilter('inventaris');
                 }
-            } catch (e) { document.getElementById('tbodyInventaris').innerHTML = `<tr><td colspan="14" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
+            } catch (e) { document.getElementById('tbodyInventaris').innerHTML = `<tr><td colspan="15" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
         async function fetchBantuanData() {
             try {
@@ -464,28 +511,28 @@
                     populateDateOptions('filterBantuanTanggal', allBantuanData, 'tanggal_perolehan');
                     applyFilter('bantuan');
                 }
-            } catch (e) { document.getElementById('tbodyBantuan').innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
+            } catch (e) { document.getElementById('tbodyBantuan').innerHTML = `<tr><td colspan="12" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
         async function fetchRusakData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=LaporanRusak`);
                 const result = await res.json();
                 if (result.status === "success") { allRusakData = result.data; applyFilter('rusak'); }
-            } catch (e) { document.getElementById('tbodyRusak').innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
+            } catch (e) { document.getElementById('tbodyRusak').innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
         async function fetchPeminjamanData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=Peminjaman`);
                 const result = await res.json();
                 if (result.status === "success") { allPeminjamanData = result.data; applyFilter('peminjaman'); }
-            } catch (e) { document.getElementById('tbodyPeminjaman').innerHTML = `<tr><td colspan="9" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
+            } catch (e) { document.getElementById('tbodyPeminjaman').innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
         async function fetchPengeluaranData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=Pengeluaran`);
                 const result = await res.json();
                 if (result.status === "success") { allPengeluaranData = result.data; applyFilter('pengeluaran'); }
-            } catch (e) { document.getElementById('tbodyPengeluaran').innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
+            } catch (e) { document.getElementById('tbodyPengeluaran').innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
         
         async function fetchKodeBarang() {
@@ -508,6 +555,13 @@
             });
         }
 
+        // ================= FILTER HANDLER (RESET PAGE SAAT FILTER BERUBAH) =================
+        function handleFilterChange(type) {
+            currentPageState[type] = 1; // Reset ke halaman 1 HANYA saat filter diubah
+            applyFilter(type); // Lalu render data
+        }
+
+        // ================= APPLY FILTER (TIDAK MERESet PAGE) =================
         function applyFilter(type) {
             if (type === 'inventaris') {
                 const f = { nama: document.getElementById('filterNama').value.toLowerCase(), tanggal: document.getElementById('filterTanggal').value, sumber: document.getElementById('filterSumber').value, kondisi: document.getElementById('filterKondisi').value, lokasi: document.getElementById('filterLokasi').value.toLowerCase() };
@@ -544,119 +598,289 @@
             else if (type === 'rusak') ['filterRusakNama', 'filterRusakLokasi'].forEach(id => document.getElementById(id).value = '');
             else if (type === 'peminjaman') ['filterPinjamNama', 'filterPinjamPeminjam'].forEach(id => document.getElementById(id).value = '');
             else if (type === 'pengeluaran') ['filterKeluarNama', 'filterKeluarPenerima'].forEach(id => document.getElementById(id).value = '');
-            applyFilter(type);
+            handleFilterChange(type); // Gunakan handleFilterChange untuk reset page juga
         }
 
         function getActionButtons(sheet, row) {
-    if (!currentUser || currentUser.role !== 'admin') return '<td></td>';
-    return `<td class="text-center align-middle">
-        <div class="flex gap-1 justify-center items-center">
-            <button onclick="openEditModalById('${sheet}', '${row.id}')" class="tap-scale p-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors" title="Edit">
-                <i data-lucide="edit-2" class="w-3 h-3"></i>
-            </button>
-            <button onclick="deleteData('${sheet}', '${row.id}')" class="tap-scale p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors" title="Hapus">
-                <i data-lucide="trash-2" class="w-3 h-3"></i>
-            </button>
-        </div>
-    </td>`;
-}
+            if (!currentUser || currentUser.role !== 'admin') return '<td></td>';
+            return `<td class="text-center align-middle">
+                <div class="flex gap-1.5 justify-center items-center">
+                    <button onclick="openEditModalById('${sheet}', '${row.id}')" class="tap-scale p-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors" title="Edit">
+                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deleteData('${sheet}', '${row.id}')" class="tap-scale p-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors" title="Hapus">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </td>`;
+        }
+
+        function renderPagination(type, totalPages, currentPage, totalFilteredData) {
+            const containerId = `pagination-${type}`;
+            let container = document.getElementById(containerId);
+            if (container) container.remove();
+            if (totalPages <= 1 && totalFilteredData <= ROWS_PER_PAGE) return;
+
+            container = document.createElement('div');
+            container.id = containerId;
+            container.className = 'flex flex-col sm:flex-row items-center justify-between mt-4 px-2 gap-2';
+            
+            const tableName = type.charAt(0).toUpperCase() + type.slice(1);
+            const tableEl = document.getElementById(`table${tableName}`);
+            if (tableEl && tableEl.parentElement) {
+                tableEl.parentElement.insertAdjacentElement('afterend', container);
+            }
+
+            const start = (currentPage - 1) * ROWS_PER_PAGE + 1;
+            const end = Math.min(currentPage * ROWS_PER_PAGE, totalFilteredData);
+            const prevDisabled = currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100';
+            const nextDisabled = currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100';
+
+            container.innerHTML = `
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
+                    <i data-lucide="database" class="w-3.5 h-3.5 text-indigo-500"></i>
+                    <span>Menampilkan <span class="text-indigo-600">${start}-${end}</span> dari <span class="text-indigo-600">${totalFilteredData}</span> data</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="changePage('${type}', -1)" class="tap-scale px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 ${prevDisabled} transition-colors flex items-center gap-1">
+                        <i data-lucide="chevron-left" class="w-3 h-3"></i> Sebelumnya
+                    </button>
+                    <span class="text-xs font-bold text-slate-500 px-2">Halaman ${currentPage} dari ${totalPages}</span>
+                    <button onclick="changePage('${type}', 1)" class="tap-scale px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 ${nextDisabled} transition-colors flex items-center gap-1">
+                        Selanjutnya <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function changePage(type, direction) {
+            currentPageState[type] += direction;
+            applyFilter(type);
+        }
 
         function renderInventarisTable(data) {
-    const tbody = document.getElementById('tbodyInventaris');
-    if (!tbody) return; tbody.innerHTML = '';
-    const isAdmin = currentUser && currentUser.role === 'admin';
-    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '14' : '13'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-    data.slice(-50).reverse().forEach(row => {
-        const tr = document.createElement('tr');
-        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-        const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
-        const harga = row.harga ? 'Rp ' + Number(row.harga).toLocaleString('id-ID') : '-';
-        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-        const makeMultipleLinks = (urlStr) => {
-            if (!urlStr || urlStr === '-') return '-';
-            const urls = String(urlStr).split(' | ').filter(u => u.trim());
-            if (urls.length === 0) return '-';
-            return urls.map((u, i) => `<a href="${u.trim()}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Bukti ${i+1}</a>`).join('<br>');
-        };
-        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="align-middle">${row.jenis || '-'}</td><td class="font-bold text-slate-700 align-middle">${row.nama || '-'}</td><td class="align-middle">${row.kode || '-'}</td><td class="align-middle">${tglPerolehan}</td><td class="align-middle"><span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md text-[9px] font-black">${row.sumber_dana || '-'}</span></td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${harga}</td><td class="align-middle">${row.kondisi || '-'}</td><td class="align-middle">${row.lokasi || '-'}</td><td class="align-middle">${makeMultipleLinks(row.bukti_pembelian)}</td><td class="align-middle">${makeLink(row.foto_barang)}</td>${getActionButtons('Inventaris', row)}`;
-        tbody.appendChild(tr);
-    });
-    lucide.createIcons();
-}
+            const tbody = document.getElementById('tbodyInventaris');
+            if (!tbody) return; tbody.innerHTML = '';
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            const colCount = isAdmin ? 15 : 14;
+            
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${colCount}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+
+            const reversedData = [...data].reverse();
+            const totalPages = Math.ceil(reversedData.length / ROWS_PER_PAGE);
+            let currentPage = currentPageState.inventaris || 1;
+            if (currentPage > totalPages) { currentPage = totalPages; currentPageState.inventaris = totalPages; }
+            
+            const start = (currentPage - 1) * ROWS_PER_PAGE;
+            const paginatedData = reversedData.slice(start, start + ROWS_PER_PAGE);
+
+            let html = '';
+            paginatedData.forEach((row, index) => {
+                const no = start + index + 1;
+                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+                const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
+                const harga = row.harga ? 'Rp ' + Number(row.harga).toLocaleString('id-ID') : '-';
+                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+                const makeMultipleLinks = (urlStr) => {
+                    if (!urlStr || urlStr === '-') return '-';
+                    const urls = String(urlStr).split(' | ').filter(u => u.trim());
+                    if (urls.length === 0) return '-';
+                    return urls.map((u, i) => `<a href="${u.trim()}" target="_blank" class="text-indigo-600 hover:underline font-bold text-[10px]">Bukti ${i+1}</a>`).join('<br>');
+                };
+                
+                html += `<tr>
+                    <td class="align-middle text-center font-bold text-slate-500">${no}</td>
+                    <td class="align-middle">${tgl}</td>
+                    <td class="align-middle">${row.jenis || '-'}</td>
+                    <td class="font-bold text-slate-700 align-middle">${row.nama || '-'}</td>
+                    <td class="align-middle">${row.kode || '-'}</td>
+                    <td class="align-middle">${tglPerolehan}</td>
+                    <td class="align-middle"><span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md text-[9px] font-black">${row.sumber_dana || '-'}</span></td>
+                    <td class="align-middle text-center">${row.jumlah || '-'}</td>
+                    <td class="align-middle text-center">${row.satuan || '-'}</td>
+                    <td class="align-middle">${harga}</td>
+                    <td class="align-middle">${row.kondisi || '-'}</td>
+                    <td class="align-middle">${row.lokasi || '-'}</td>
+                    <td class="align-middle">${makeMultipleLinks(row.bukti_pembelian)}</td>
+                    <td class="align-middle">${makeLink(row.foto_barang)}</td>
+                    ${getActionButtons('Inventaris', row)}
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+            renderPagination('inventaris', totalPages, currentPage, reversedData.length);
+        }
 
         function renderBantuanTable(data) {
-    const tbody = document.getElementById('tbodyBantuan');
-    if (!tbody) return; tbody.innerHTML = '';
-    const isAdmin = currentUser && currentUser.role === 'admin';
-    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '11' : '10'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-    data.slice(-50).reverse().forEach(row => {
-        const tr = document.createElement('tr');
-        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-        const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
-        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-emerald-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td><td class="align-middle">${tglPerolehan}</td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${row.merek || '-'}</td><td class="align-middle"><span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black">${row.sumber_bantuan || '-'}</span></td><td class="align-middle">${row.kondisi || '-'}</td><td class="align-middle">${row.lokasi || '-'}</td><td class="align-middle">${makeLink(row.foto_barang)}</td>${getActionButtons('Bantuan', row)}`;
-        tbody.appendChild(tr);
-    });
-    lucide.createIcons();
-}
+            const tbody = document.getElementById('tbodyBantuan');
+            if (!tbody) return; tbody.innerHTML = '';
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            const colCount = isAdmin ? 12 : 11;
+            
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${colCount}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+
+            const reversedData = [...data].reverse();
+            const totalPages = Math.ceil(reversedData.length / ROWS_PER_PAGE);
+            let currentPage = currentPageState.bantuan || 1;
+            if (currentPage > totalPages) { currentPage = totalPages; currentPageState.bantuan = totalPages; }
+            
+            const start = (currentPage - 1) * ROWS_PER_PAGE;
+            const paginatedData = reversedData.slice(start, start + ROWS_PER_PAGE);
+
+            let html = '';
+            paginatedData.forEach((row, index) => {
+                const no = start + index + 1;
+                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+                const tglPerolehan = formatTanggalID(row.tanggal_perolehan);
+                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-emerald-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+                
+                html += `<tr>
+                    <td class="align-middle text-center font-bold text-slate-500">${no}</td>
+                    <td class="align-middle">${tgl}</td>
+                    <td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td>
+                    <td class="align-middle">${tglPerolehan}</td>
+                    <td class="align-middle text-center">${row.jumlah || '-'}</td>
+                    <td class="align-middle text-center">${row.satuan || '-'}</td>
+                    <td class="align-middle">${row.merek || '-'}</td>
+                    <td class="align-middle"><span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black">${row.sumber_bantuan || '-'}</span></td>
+                    <td class="align-middle">${row.kondisi || '-'}</td>
+                    <td class="align-middle">${row.lokasi || '-'}</td>
+                    <td class="align-middle">${makeLink(row.foto_barang)}</td>
+                    ${getActionButtons('Bantuan', row)}
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+            renderPagination('bantuan', totalPages, currentPage, reversedData.length);
+        }
 
         function renderRusakTable(data) {
-    const tbody = document.getElementById('tbodyRusak');
-    if (!tbody) return; tbody.innerHTML = '';
-    const isAdmin = currentUser && currentUser.role === 'admin';
-    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '10' : '9'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-    data.slice(-50).reverse().forEach(row => {
-        const tr = document.createElement('tr');
-        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-rose-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-        const status = row.status || 'Rusak';
-        const statusClass = status === 'Telah Diperbaiki' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
-        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td><td class="align-middle">${row.lokasi || '-'}</td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${row.deskripsi_kerusakan || '-'}</td><td class="align-middle">${makeLink(row.foto_rusak)}</td><td class="align-middle">${row.pelapor || '-'}</td><td class="align-middle"><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>${getActionButtons('LaporanRusak', row)}`;
-        tbody.appendChild(tr);
-    });
-    lucide.createIcons();
-}
+            const tbody = document.getElementById('tbodyRusak');
+            if (!tbody) return; tbody.innerHTML = '';
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            const colCount = isAdmin ? 11 : 10;
+            
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${colCount}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+
+            const reversedData = [...data].reverse();
+            const totalPages = Math.ceil(reversedData.length / ROWS_PER_PAGE);
+            let currentPage = currentPageState.rusak || 1;
+            if (currentPage > totalPages) { currentPage = totalPages; currentPageState.rusak = totalPages; }
+            
+            const start = (currentPage - 1) * ROWS_PER_PAGE;
+            const paginatedData = reversedData.slice(start, start + ROWS_PER_PAGE);
+
+            let html = '';
+            paginatedData.forEach((row, index) => {
+                const no = start + index + 1;
+                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-rose-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+                const status = row.status || 'Rusak';
+                const statusClass = status === 'Telah Diperbaiki' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
+                
+                html += `<tr>
+                    <td class="align-middle text-center font-bold text-slate-500">${no}</td>
+                    <td class="align-middle">${tgl}</td>
+                    <td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td>
+                    <td class="align-middle">${row.lokasi || '-'}</td>
+                    <td class="align-middle text-center">${row.jumlah || '-'}</td>
+                    <td class="align-middle text-center">${row.satuan || '-'}</td>
+                    <td class="align-middle">${row.deskripsi_kerusakan || '-'}</td>
+                    <td class="align-middle">${makeLink(row.foto_rusak)}</td>
+                    <td class="align-middle">${row.pelapor || '-'}</td>
+                    <td class="align-middle"><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>
+                    ${getActionButtons('LaporanRusak', row)}
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+            renderPagination('rusak', totalPages, currentPage, reversedData.length);
+        }
         
         function renderPeminjamanTable(data) {
-    const tbody = document.getElementById('tbodyPeminjaman');
-    if (!tbody) return; tbody.innerHTML = '';
-    const isAdmin = currentUser && currentUser.role === 'admin';
-    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '9' : '8'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-    data.slice(-50).reverse().forEach(row => {
-        const tr = document.createElement('tr');
-        const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-        const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-amber-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
-        const status = row.status || 'Dipinjam';
-        const statusClass = status === 'Telah Dikembalikan' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
-        tr.innerHTML = `<td class="align-middle">${tgl}</td><td class="font-bold text-slate-700 align-middle">${row.nama_alat || '-'}</td><td class="align-middle">${row.peminjam || '-'}</td><td class="align-middle text-center">${row.jumlah || '-'}</td><td class="align-middle text-center">${row.satuan || '-'}</td><td class="align-middle">${row.keterangan || '-'}</td><td class="align-middle">${makeLink(row.foto_barang)}</td><td class="align-middle"><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>${getActionButtons('Peminjaman', row)}`;
-        tbody.appendChild(tr);
-    });
-    lucide.createIcons();
-}
+            const tbody = document.getElementById('tbodyPeminjaman');
+            if (!tbody) return; tbody.innerHTML = '';
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            const colCount = isAdmin ? 10 : 9;
+            
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${colCount}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+
+            const reversedData = [...data].reverse();
+            const totalPages = Math.ceil(reversedData.length / ROWS_PER_PAGE);
+            let currentPage = currentPageState.peminjaman || 1;
+            if (currentPage > totalPages) { currentPage = totalPages; currentPageState.peminjaman = totalPages; }
+            
+            const start = (currentPage - 1) * ROWS_PER_PAGE;
+            const paginatedData = reversedData.slice(start, start + ROWS_PER_PAGE);
+
+            let html = '';
+            paginatedData.forEach((row, index) => {
+                const no = start + index + 1;
+                const tgl = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+                const makeLink = (url) => url && url !== '-' ? `<a href="${url}" target="_blank" class="text-amber-600 hover:underline font-bold text-[10px]">Lihat</a>` : '-';
+                const status = row.status || 'Dipinjam';
+                const statusClass = status === 'Telah Dikembalikan' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
+                
+                html += `<tr>
+                    <td class="align-middle text-center font-bold text-slate-500">${no}</td>
+                    <td class="align-middle">${tgl}</td>
+                    <td class="font-bold text-slate-700 align-middle">${row.nama_alat || '-'}</td>
+                    <td class="align-middle">${row.peminjam || '-'}</td>
+                    <td class="align-middle text-center">${row.jumlah || '-'}</td>
+                    <td class="align-middle text-center">${row.satuan || '-'}</td>
+                    <td class="align-middle">${row.keterangan || '-'}</td>
+                    <td class="align-middle">${makeLink(row.foto_barang)}</td>
+                    <td class="align-middle"><span class="px-2 py-1 ${statusClass} rounded-md text-[9px] font-black">${status}</span></td>
+                    ${getActionButtons('Peminjaman', row)}
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+            renderPagination('peminjaman', totalPages, currentPage, reversedData.length);
+        }
+
         function renderPengeluaranTable(data) {
-    const tbody = document.getElementById('tbodyPengeluaran');
-    if (!tbody) return; tbody.innerHTML = '';
-    const isAdmin = currentUser && currentUser.role === 'admin';
-    if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${isAdmin ? '10' : '9'}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
-    data.slice(-50).reverse().forEach(row => {
-        const tr = document.createElement('tr');
-        const tglInput = row.timestamp ? formatTanggalID(row.timestamp) : '-';
-        const tglKeluar = formatTanggalID(row.tanggal_pengeluaran);
-        const tglSerah = formatTanggalID(row.tanggal_penyerahan);
-        tr.innerHTML = `<td class="align-middle">${tglInput}</td>
-        <td class="align-middle">${tglKeluar}</td>
-        <td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td>
-        <td class="align-middle text-center">${row.jumlah || '-'}</td>
-        <td class="align-middle text-center"><span class="px-2 py-1 bg-orange-50 text-orange-600 rounded-md text-[9px] font-black">${row.satuan || '-'}</span></td>
-        <td class="align-middle">${row.peruntukan || '-'}</td>
-        <td class="align-middle">${tglSerah}</td>
-        <td class="align-middle">${row.nama_penerima || '-'}</td>
-        <td class="align-middle">${row.input_oleh || '-'}</td>
-        ${getActionButtons('Pengeluaran', row)}`;
-        tbody.appendChild(tr);
-    });
-    lucide.createIcons();
-}
+            const tbody = document.getElementById('tbodyPengeluaran');
+            if (!tbody) return; tbody.innerHTML = '';
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            const colCount = isAdmin ? 11 : 10;
+            
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="${colCount}" class="text-center py-8 text-slate-400 font-bold">Tidak ada data</td></tr>`; return; }
+
+            const reversedData = [...data].reverse();
+            const totalPages = Math.ceil(reversedData.length / ROWS_PER_PAGE);
+            let currentPage = currentPageState.pengeluaran || 1;
+            if (currentPage > totalPages) { currentPage = totalPages; currentPageState.pengeluaran = totalPages; }
+            
+            const start = (currentPage - 1) * ROWS_PER_PAGE;
+            const paginatedData = reversedData.slice(start, start + ROWS_PER_PAGE);
+
+            let html = '';
+            paginatedData.forEach((row, index) => {
+                const no = start + index + 1;
+                const tglInput = row.timestamp ? formatTanggalID(row.timestamp) : '-';
+                const tglKeluar = formatTanggalID(row.tanggal_pengeluaran);
+                const tglSerah = formatTanggalID(row.tanggal_penyerahan);
+                
+                html += `<tr>
+                    <td class="align-middle text-center font-bold text-slate-500">${no}</td>
+                    <td class="align-middle">${tglInput}</td>
+                    <td class="align-middle">${tglKeluar}</td>
+                    <td class="font-bold text-slate-700 align-middle">${row.nama_barang || '-'}</td>
+                    <td class="align-middle text-center">${row.jumlah || '-'}</td>
+                    <td class="align-middle text-center"><span class="px-2 py-1 bg-orange-50 text-orange-600 rounded-md text-[9px] font-black">${row.satuan || '-'}</span></td>
+                    <td class="align-middle">${row.peruntukan || '-'}</td>
+                    <td class="align-middle">${tglSerah}</td>
+                    <td class="align-middle">${row.nama_penerima || '-'}</td>
+                    <td class="align-middle">${row.input_oleh || '-'}</td>
+                    ${getActionButtons('Pengeluaran', row)}
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+            renderPagination('pengeluaran', totalPages, currentPage, reversedData.length);
+        }
 
         // ================= MODAL EDIT STATUS =================
         function openStatusModal(sheet, uniqueId, itemName, currentStatus, statusColumn, availableStatuses) {
@@ -729,59 +953,58 @@
         }
 
         function openEditModal(sheet, row) {
-    currentEditSheet = sheet;
-    currentEditRow = row;
-    const content = document.getElementById('editModalContent');
-    let html = '';
-    
-    const fields = {
-        'Inventaris': ['nama', 'jumlah', 'harga', 'lokasi', 'keterangan'],
-        'Bantuan': ['nama_barang', 'jumlah', 'merek', 'lokasi', 'keterangan'],
-        'LaporanRusak': ['nama_barang', 'jumlah', 'lokasi', 'deskripsi_kerusakan', 'status'], // <-- Sudah ada 'status'
-        'Peminjaman': ['nama_alat', 'jumlah', 'keterangan', 'status'], // <-- Ditambahkan 'status'
-        'Pengeluaran': ['nama_barang', 'jumlah', 'peruntukan', 'nama_penerima']
-    };
-    const labels = {
-        'nama': 'Nama', 'nama_barang': 'Nama Barang', 'nama_alat': 'Nama Alat',
-        'jumlah': 'Jumlah', 'harga': 'Harga', 'lokasi': 'Lokasi',
-        'keterangan': 'Keterangan', 'merek': 'Merek', 'deskripsi_kerusakan': 'Deskripsi Kerusakan',
-        'peruntukan': 'Peruntukan', 'nama_penerima': 'Nama Penerima',
-        'status': 'Status'
-    };
+            currentEditSheet = sheet;
+            currentEditRow = row;
+            const content = document.getElementById('editModalContent');
+            let html = '';
+            
+            const fields = {
+                'Inventaris': ['nama', 'jumlah', 'harga', 'lokasi', 'keterangan'],
+                'Bantuan': ['nama_barang', 'jumlah', 'merek', 'lokasi', 'keterangan'],
+                'LaporanRusak': ['nama_barang', 'jumlah', 'lokasi', 'deskripsi_kerusakan', 'status'],
+                'Peminjaman': ['nama_alat', 'jumlah', 'keterangan', 'status'],
+                'Pengeluaran': ['nama_barang', 'jumlah', 'peruntukan', 'nama_penerima']
+            };
+            const labels = {
+                'nama': 'Nama', 'nama_barang': 'Nama Barang', 'nama_alat': 'Nama Alat',
+                'jumlah': 'Jumlah', 'harga': 'Harga', 'lokasi': 'Lokasi',
+                'keterangan': 'Keterangan', 'merek': 'Merek', 'deskripsi_kerusakan': 'Deskripsi Kerusakan',
+                'peruntukan': 'Peruntukan', 'nama_penerima': 'Nama Penerima',
+                'status': 'Status'
+            };
 
-    (fields[sheet] || []).forEach(field => {
-        const value = row[field] !== undefined ? row[field] : '';
-        const isNumber = field === 'jumlah' || field === 'harga';
-        const isTextarea = field === 'keterangan' || field === 'deskripsi_kerusakan' || field === 'peruntukan';
-        
-        html += `<div class="space-y-1">
-            <label class="text-[10px] font-black text-slate-500 uppercase">${labels[field] || field}</label>`;
-        
-        // <-- PENANGANAN KHUSUS DINAMIS UNTUK FIELD STATUS
-        if (field === 'status') {
-            let statusOptions = '';
-            if (sheet === 'LaporanRusak') {
-                statusOptions = `
-                    <option value="Rusak" ${value === 'Rusak' ? 'selected' : ''}>Rusak</option>
-                    <option value="Telah Diperbaiki" ${value === 'Telah Diperbaiki' ? 'selected' : ''}>Telah Diperbaiki</option>
-                `;
-            } else if (sheet === 'Peminjaman') {
-                statusOptions = `
-                    <option value="Dipinjam" ${value === 'Dipinjam' ? 'selected' : ''}>Dipinjam</option>
-                    <option value="Telah Dikembalikan" ${value === 'Telah Dikembalikan' ? 'selected' : ''}>Telah Dikembalikan</option>
-                `;
-            }
-            html += `<select id="edit_${field}" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20">${statusOptions}</select>`;
-        } else if (isTextarea) {
-            html += `<textarea id="edit_${field}" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20" rows="2">${value}</textarea>`;
-        } else {
-            html += `<input type="${isNumber ? 'number' : 'text'}" id="edit_${field}" value="${value}" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20">`;
+            (fields[sheet] || []).forEach(field => {
+                const value = row[field] !== undefined ? row[field] : '';
+                const isNumber = field === 'jumlah' || field === 'harga';
+                const isTextarea = field === 'keterangan' || field === 'deskripsi_kerusakan' || field === 'peruntukan';
+                
+                html += `<div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-500 uppercase">${labels[field] || field}</label>`;
+                
+                if (field === 'status') {
+                    let statusOptions = '';
+                    if (sheet === 'LaporanRusak') {
+                        statusOptions = `
+                            <option value="Rusak" ${value === 'Rusak' ? 'selected' : ''}>Rusak</option>
+                            <option value="Telah Diperbaiki" ${value === 'Telah Diperbaiki' ? 'selected' : ''}>Telah Diperbaiki</option>
+                        `;
+                    } else if (sheet === 'Peminjaman') {
+                        statusOptions = `
+                            <option value="Dipinjam" ${value === 'Dipinjam' ? 'selected' : ''}>Dipinjam</option>
+                            <option value="Telah Dikembalikan" ${value === 'Telah Dikembalikan' ? 'selected' : ''}>Telah Dikembalikan</option>
+                        `;
+                    }
+                    html += `<select id="edit_${field}" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20">${statusOptions}</select>`;
+                } else if (isTextarea) {
+                    html += `<textarea id="edit_${field}" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20" rows="2">${value}</textarea>`;
+                } else {
+                    html += `<input type="${isNumber ? 'number' : 'text'}" id="edit_${field}" value="${value}" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20">`;
+                }
+                html += `</div>`;
+            });
+            content.innerHTML = html;
+            document.getElementById('editModal').classList.remove('hidden');
         }
-        html += `</div>`;
-    });
-    content.innerHTML = html;
-    document.getElementById('editModal').classList.remove('hidden');
-}
 
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
@@ -789,46 +1012,45 @@
         }
 
         async function saveEditData() {
-    if (!currentEditRow || !currentEditSheet) return;
-    const fields = {
-        'Inventaris': ['nama', 'jumlah', 'harga', 'lokasi', 'keterangan'],
-        'Bantuan': ['nama_barang', 'jumlah', 'merek', 'lokasi', 'keterangan'],
-        'LaporanRusak': ['nama_barang', 'jumlah', 'lokasi', 'deskripsi_kerusakan', 'status'], // <-- Sudah ada 'status'
-        'Peminjaman': ['nama_alat', 'jumlah', 'keterangan', 'status'], // <-- Ditambahkan 'status'
-        'Pengeluaran': ['nama_barang', 'jumlah', 'peruntukan', 'nama_penerima']
-    };
-    const updates = {};
-    (fields[currentEditSheet] || []).forEach(field => {
-        const el = document.getElementById(`edit_${field}`);
-        if (el) {
-            // Jika field adalah jumlah atau harga, ubah ke number, selain itu ambil string (termasuk status)
-            updates[field] = (field === 'jumlah' || field === 'harga') ? Number(el.value) : el.value;
+            if (!currentEditRow || !currentEditSheet) return;
+            const fields = {
+                'Inventaris': ['nama', 'jumlah', 'harga', 'lokasi', 'keterangan'],
+                'Bantuan': ['nama_barang', 'jumlah', 'merek', 'lokasi', 'keterangan'],
+                'LaporanRusak': ['nama_barang', 'jumlah', 'lokasi', 'deskripsi_kerusakan', 'status'],
+                'Peminjaman': ['nama_alat', 'jumlah', 'keterangan', 'status'],
+                'Pengeluaran': ['nama_barang', 'jumlah', 'peruntukan', 'nama_penerima']
+            };
+            const updates = {};
+            (fields[currentEditSheet] || []).forEach(field => {
+                const el = document.getElementById(`edit_${field}`);
+                if (el) {
+                    updates[field] = (field === 'jumlah' || field === 'harga') ? Number(el.value) : el.value;
+                }
+            });
+
+            const btn = document.querySelector('#editModal button[onclick="saveEditData()"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">Menyimpan...</span>`;
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "updateData", sheet: currentEditSheet, id: currentEditRow.id, updates: updates }) });
+                const result = await response.json();
+                if (result.status === "success") {
+                    showToast("Data berhasil diperbarui!", "emerald");
+                    closeEditModal();
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab) {
+                        const tabId = activeTab.id.replace('tab-', '');
+                        if (tabId === 'inventaris') fetchInventoryData();
+                        else if (tabId === 'bantuan') fetchBantuanData();
+                        else if (tabId === 'rusak') fetchRusakData();
+                        else if (tabId === 'peminjaman') fetchPeminjamanData();
+                        else if (tabId === 'pengeluaran') fetchPengeluaranData();
+                    }
+                } else { showToast(result.message, "rose"); }
+            } catch (err) { showToast("Gagal terhubung ke server!", "rose"); }
+            finally { btn.disabled = false; btn.innerHTML = originalText; }
         }
-    });
-
-    const btn = document.querySelector('#editModal button[onclick="saveEditData()"]');
-    const originalText = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">Menyimpan...</span>`;
-
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "updateData", sheet: currentEditSheet, id: currentEditRow.id, updates: updates }) });
-        const result = await response.json();
-        if (result.status === "success") {
-            showToast("Data berhasil diperbarui!", "emerald");
-            closeEditModal();
-            const activeTab = document.querySelector('.tab-btn.active');
-            if (activeTab) {
-                const tabId = activeTab.id.replace('tab-', '');
-                if (tabId === 'inventaris') fetchInventoryData();
-                else if (tabId === 'bantuan') fetchBantuanData();
-                else if (tabId === 'rusak') fetchRusakData();
-                else if (tabId === 'peminjaman') fetchPeminjamanData(); // <-- Akan refresh dan menampilkan badge status baru
-                else if (tabId === 'pengeluaran') fetchPengeluaranData();
-            }
-        } else { showToast(result.message, "rose"); }
-    } catch (err) { showToast("Gagal terhubung ke server!", "rose"); }
-    finally { btn.disabled = false; btn.innerHTML = originalText; }
-}
 
         async function deleteData(sheet, id) {
             if (!confirm("Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.")) return;
@@ -921,52 +1143,51 @@
 
         // ================= FORM RENDERING =================
         function renderFormInputBarang(container) {
-    container.innerHTML = `
-        <h2 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2"><i data-lucide="package-plus" class="w-5 h-5 text-indigo-500"></i> Input Barang/Bahan</h2>
-        <div class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select id="inv_jenis" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-                    <option value="Barang">Barang</option>
-                    <option value="Bahan">Bahan</option>
-                    <option value="Fasilitas">Fasilitas</option>
-                </select>
-                <div class="searchable-dropdown">
-                    <input type="text" id="inv_nama" placeholder="Ketik nama barang..." class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required autocomplete="off">
-                    <div id="namaDropdown" class="dropdown-list"></div>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="inv_kode" placeholder="Kode Lengkap" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-                <div class="relative">
-                    <label class="absolute -top-2 left-3 bg-white/80 px-1 text-[9px] font-black text-indigo-500 uppercase">Tanggal Perolehan</label>
-                    <input type="date" id="inv_tanggal" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="inv_merek" placeholder="Merek / Type" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-                <select id="inv_sumber" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-                    <option value="BOS">BOS</option><option value="BPOPP">BPOPP</option><option value="PSM">PSM</option>
-                </select>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="number" id="inv_jumlah" placeholder="Jumlah" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-                <div class="w-full">${satuanOptionsHTML.replace('<select class="', '<select id="inv_satuan" class="')}</div>
-                <!-- BARIS YANG DITAMBAHKAN UNTUK MEMPERBAIKI ERROR -->
-                <select id="inv_kondisi" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-                    <option value="Baik" selected>Baik</option>
-                    <option value="Rusak Ringan">Rusak Ringan</option>
-                    <option value="Rusak Berat">Rusak Berat</option>
-                </select>
-            </div>
-            <input type="number" id="inv_harga" placeholder="Harga (Rp)" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-            <input type="text" id="inv_lokasi" placeholder="Lokasi Penempatan" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
-            <textarea id="inv_keterangan" placeholder="Keterangan Tambahan" rows="2" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"></textarea>
-            ${renderUploadSection('foto_barang', 'Unggah Foto Barang/Bahan (Maks. 5 Foto)', true)}
-            ${renderUploadSection('bukti_pembelian', 'Unggah Bukti - BAST/Nota/Kwitansi/Rekening Koran (Maks. 5 Foto)', true)}
-            <button type="button" onclick="submitInventaris()" id="btnSubmitBarang" class="tap-scale w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg mt-4">Simpan Data</button>
-        </div>`;
-    setTimeout(() => initSearchableDropdown(), 100);
-}
+            container.innerHTML = `
+                <h2 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2"><i data-lucide="package-plus" class="w-5 h-5 text-indigo-500"></i> Input Barang/Bahan</h2>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <select id="inv_jenis" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                            <option value="Barang">Barang</option>
+                            <option value="Bahan">Bahan</option>
+                            <option value="Fasilitas">Fasilitas</option>
+                        </select>
+                        <div class="searchable-dropdown">
+                            <input type="text" id="inv_nama" placeholder="Ketik nama barang..." class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required autocomplete="off">
+                            <div id="namaDropdown" class="dropdown-list"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="inv_kode" placeholder="Kode Lengkap" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                        <div class="relative">
+                            <label class="absolute -top-2 left-3 bg-white/80 px-1 text-[9px] font-black text-indigo-500 uppercase">Tanggal Perolehan</label>
+                            <input type="date" id="inv_tanggal" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="inv_merek" placeholder="Merek / Type" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                        <select id="inv_sumber" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                            <option value="BOS">BOS</option><option value="BPOPP">BPOPP</option><option value="PSM">PSM</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="number" id="inv_jumlah" placeholder="Jumlah" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                        <div class="w-full">${satuanOptionsHTML.replace('<select class="', '<select id="inv_satuan" class="')}</div>
+                        <select id="inv_kondisi" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                            <option value="Baik" selected>Baik</option>
+                            <option value="Rusak Ringan">Rusak Ringan</option>
+                            <option value="Rusak Berat">Rusak Berat</option>
+                        </select>
+                    </div>
+                    <input type="number" id="inv_harga" placeholder="Harga (Rp)" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                    <input type="text" id="inv_lokasi" placeholder="Lokasi Penempatan" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                    <textarea id="inv_keterangan" placeholder="Keterangan Tambahan" rows="2" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"></textarea>
+                    ${renderUploadSection('foto_barang', 'Unggah Foto Barang/Bahan (Maks. 5 Foto)', true)}
+                    ${renderUploadSection('bukti_pembelian', 'Unggah Bukti - BAST/Nota/Kwitansi/Rekening Koran (Maks. 5 Foto)', true)}
+                    <button type="button" onclick="submitInventaris()" id="btnSubmitBarang" class="tap-scale w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg mt-4">Simpan Data</button>
+                </div>`;
+            setTimeout(() => initSearchableDropdown(), 100);
+        }
 
         function initSearchableDropdown() {
             const input = document.getElementById('inv_nama');
