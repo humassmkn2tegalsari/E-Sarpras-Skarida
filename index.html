@@ -189,7 +189,7 @@
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWDpU0cdCdsKYaALxWuDAkfSKWkU4UDZBx2El1swl3ipVa9uiahNyN9xFH53fSHJ1DNQ/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKJTX6Bk3qQtvnlfc-57APdZC9N9s1UKLblKqkrn7U-oO1zL80Js23ItSItlRNmKM7kg/exec";
         let currentUser = null, currentImagesBase64 = [], currentBuktiBase64 = [], currentBuktiMultiple = [];
         let allInventoryData = [], allBantuanData = [], allRusakData = [], allPeminjamanData = [], allPengeluaranData = [];
         let kodeBarangData = [];
@@ -353,7 +353,6 @@
             }, 200);
         }
 
-        // ================= FUNGSI BARU: UPDATE BADGE JUMLAH DATA =================
         function updateDataBadge(type, count) {
             const badgeId = `badge-${type}`;
             const badgeEl = document.getElementById(badgeId);
@@ -491,14 +490,13 @@
             fetchPengeluaranData();
         }
 
-        // ================= FETCH DATA + UPDATE BADGE =================
         async function fetchInventoryData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=Inventaris`);
                 const result = await res.json();
                 if (result.status === "success") {
                     allInventoryData = result.data;
-                    updateDataBadge('inventaris', allInventoryData.length); // ✅ Update badge setelah data dimuat
+                    updateDataBadge('inventaris', allInventoryData.length);
                     populateDateOptions('filterTanggal', allInventoryData, 'tanggal_perolehan');
                     applyFilter('inventaris');
                 }
@@ -511,7 +509,7 @@
                 const result = await res.json();
                 if (result.status === "success") {
                     allBantuanData = result.data;
-                    updateDataBadge('bantuan', allBantuanData.length); // ✅ Update badge setelah data dimuat
+                    updateDataBadge('bantuan', allBantuanData.length);
                     populateDateOptions('filterBantuanTanggal', allBantuanData, 'tanggal_perolehan');
                     applyFilter('bantuan');
                 }
@@ -524,7 +522,7 @@
                 const result = await res.json();
                 if (result.status === "success") { 
                     allRusakData = result.data; 
-                    updateDataBadge('rusak', allRusakData.length); // ✅ Update badge setelah data dimuat
+                    updateDataBadge('rusak', allRusakData.length);
                     applyFilter('rusak'); 
                 }
             } catch (e) { document.getElementById('tbodyRusak').innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
@@ -536,7 +534,7 @@
                 const result = await res.json();
                 if (result.status === "success") { 
                     allPeminjamanData = result.data; 
-                    updateDataBadge('peminjaman', allPeminjamanData.length); // ✅ Update badge setelah data dimuat
+                    updateDataBadge('peminjaman', allPeminjamanData.length);
                     applyFilter('peminjaman'); 
                 }
             } catch (e) { document.getElementById('tbodyPeminjaman').innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
@@ -548,7 +546,7 @@
                 const result = await res.json();
                 if (result.status === "success") { 
                     allPengeluaranData = result.data; 
-                    updateDataBadge('pengeluaran', allPengeluaranData.length); // ✅ Update badge setelah data dimuat
+                    updateDataBadge('pengeluaran', allPengeluaranData.length);
                     applyFilter('pengeluaran'); 
                 }
             } catch (e) { document.getElementById('tbodyPengeluaran').innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
@@ -1220,8 +1218,8 @@
                     <input type="number" id="inv_harga" placeholder="Harga (Rp)" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
                     <input type="text" id="inv_lokasi" placeholder="Lokasi Penempatan" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" required>
                     <textarea id="inv_keterangan" placeholder="Keterangan Tambahan" rows="2" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"></textarea>
-                    ${renderUploadSection('foto_barang', 'Unggah Foto Barang/Bahan (Maks. 5 Foto)', true)}
-                    ${renderUploadSection('bukti_pembelian', 'Unggah Bukti - BAST/Nota/Kwitansi/Rekening Koran (Maks. 5 Foto)', true)}
+                    ${renderUploadSection('foto_barang', 'Unggah Foto Barang/Bahan (Maks. 5 File)', true)}
+                    ${renderUploadSection('bukti_pembelian', 'Unggah Bukti - BAST/Nota/Kwitansi/Rekening Koran (Maks. 5 File)', true)}
                     <button type="button" onclick="submitInventaris()" id="btnSubmitBarang" class="tap-scale w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg mt-4">Simpan Data</button>
                 </div>`;
             setTimeout(() => initSearchableDropdown(), 100);
@@ -1284,7 +1282,7 @@
                     </select>
                     <input type="text" id="bnt_lokasi" placeholder="Lokasi Penempatan" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500/20" required>
                     <textarea id="bnt_keterangan" placeholder="Keterangan" rows="2" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500/20"></textarea>
-                    ${renderUploadSection('foto_barang_bantuan', 'Unggah Foto Barang Bantuan (Maks. 5 Foto)', true)}
+                    ${renderUploadSection('foto_barang_bantuan', 'Unggah Foto Barang Bantuan (Maks. 5 File)', true)}
                     <button type="button" onclick="submitBantuan()" id="btnSubmitBantuan" class="tap-scale w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg mt-4">Simpan Data Bantuan</button>
                 </div>`;
         }
@@ -1327,7 +1325,7 @@
                     <div class="w-full mb-2">${satuanOptionsHTML.replace('<select class="', '<select id="rusak_satuan" class="')}</div>
                     <input type="text" id="rusak_lokasi" placeholder="Lokasi Barang Rusak" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500/20" required>
                     <textarea id="rusak_deskripsi" placeholder="Deskripsi Kerusakan" rows="3" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500/20" required></textarea>
-                    ${renderUploadSection('foto_rusak', 'Unggah Foto Kerusakan (Maks. 5 Foto)', true)}
+                    ${renderUploadSection('foto_rusak', 'Unggah Foto Kerusakan (Maks. 5 File)', true)}
                     <button type="button" onclick="submitLaporanRusak()" id="btnSubmitRusak" class="tap-scale w-full py-4 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg mt-4">Kirim Laporan</button>
                 </div>`;
         }
@@ -1345,22 +1343,23 @@
                         <option value="Guru">Guru</option><option value="Tenaga Kependidikan">Tenaga Kependidikan</option><option value="Lainnya">Lainnya</option>
                     </select>
                     <textarea id="pinjam_keterangan" placeholder="Keterangan Peminjaman" rows="3" class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20" required></textarea>
-                    ${renderUploadSection('foto_pinjam', 'Unggah Foto Barang Saat Dipinjam (Maks. 5 Foto)', true)}
+                    ${renderUploadSection('foto_pinjam', 'Unggah Foto Barang Saat Dipinjam (Maks. 5 File)', true)}
                     <button type="button" onclick="submitPeminjaman()" id="btnSubmitPinjam" class="tap-scale w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg mt-4">Ajukan Peminjaman</button>
                 </div>`;
         }
 
         function renderUploadSection(idPrefix, label, isMultiple) {
-            const maxText = isMultiple ? ' (Maks. 5 Foto)' : '';
-            const acceptType = isMultiple ? 'image/*' : 'image/*,application/pdf';
+            const maxText = isMultiple ? ' (Maks. 5 File)' : '';
+            const acceptType = 'image/*,application/pdf';
             const multipleAttr = isMultiple ? 'multiple' : '';
             return `
                 <div class="space-y-2">
                     <label class="text-[10px] font-black text-slate-500 uppercase">${label}</label>
                     <div class="upload-area" onclick="document.getElementById('input_${idPrefix}').click()">
                         <div class="upload-placeholder" id="placeholder_${idPrefix}">
-                            <i data-lucide="camera" class="w-8 h-8 mx-auto mb-1"></i>
+                            <i data-lucide="file-up" class="w-8 h-8 mx-auto mb-1 text-slate-400"></i>
                             <p class="text-xs font-bold">Klik untuk upload${maxText}</p>
+                            <p class="text-[9px] text-slate-400 mt-1">Format: JPG, PNG, PDF (Maks. 2MB/file)</p>
                         </div>
                         <div class="preview-grid" id="grid_${idPrefix}"></div>
                     </div>
@@ -1369,31 +1368,91 @@
                 </div>`;
         }
 
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // ✅ FUNGSI INI SUDAH DIPERBAIKI (TIDAK MENGGUNAKAN window[arrayKey])
         async function handleFileSelect(event, idPrefix, isMultiple) {
             const files = Array.from(event.target.files);
-            if (isMultiple && files.length > 5) { showToast("Maksimal 5 foto yang diizinkan!", "rose"); event.target.value = ''; return; }
+            if (isMultiple && files.length > 5) { showToast("Maksimal 5 file yang diizinkan!", "rose"); event.target.value = ''; return; }
             const grid = document.getElementById(`grid_${idPrefix}`);
             const placeholder = document.getElementById(`placeholder_${idPrefix}`);
             const countLabel = document.getElementById(`count_${idPrefix}`);
             grid.innerHTML = ''; placeholder.classList.add('hidden');
+            
             if (isMultiple) {
-                const arrayKey = idPrefix === 'bukti_pembelian' ? 'currentBuktiMultiple' : 'currentImagesBase64';
-                window[arrayKey] = [];
+                if (idPrefix === 'bukti_pembelian') currentBuktiMultiple = [];
+                else currentImagesBase64 = [];
+                
                 for (let i = 0; i < files.length; i++) {
-                    const compressed = await compressImage(files[i]);
-                    window[arrayKey].push(compressed);
+                    const file = files[i];
+                    const isPdf = file.type === 'application/pdf';
+                    
+                    if (isPdf && file.size > 2 * 1024 * 1024) {
+                        showToast(`File PDF "${file.name}" terlalu besar! Maksimal 2MB.`, "rose");
+                        continue;
+                    }
+                    
+                    let fileData;
+                    if (isPdf) fileData = await readFileAsBase64(file);
+                    else fileData = await compressImage(file);
+                    
+                    if (idPrefix === 'bukti_pembelian') currentBuktiMultiple.push(fileData);
+                    else currentImagesBase64.push(fileData);
+                    
                     const div = document.createElement('div');
                     div.className = 'preview-item';
-                    div.innerHTML = `<img src="${compressed}"><div class="remove-photo-btn" onclick="removeImage('${idPrefix}', ${i}, event)"><i data-lucide="x" class="w-3 h-3"></i></div>`;
+                    
+                    if (isPdf) {
+                        div.innerHTML = `
+                            <div class="w-full h-full flex flex-col items-center justify-center bg-red-50 p-2">
+                                <i data-lucide="file-text" class="w-6 h-6 text-red-500 mb-1"></i>
+                                <span class="text-[8px] font-bold text-red-600 text-center leading-tight truncate w-full">PDF</span>
+                            </div>
+                            <div class="remove-photo-btn" onclick="removeImage('${idPrefix}', ${i}, event)"><i data-lucide="x" class="w-3 h-3"></i></div>
+                        `;
+                    } else {
+                        div.innerHTML = `<img src="${fileData}"><div class="remove-photo-btn" onclick="removeImage('${idPrefix}', ${i}, event)"><i data-lucide="x" class="w-3 h-3"></i></div>`;
+                    }
                     grid.appendChild(div);
                 }
-                countLabel.innerText = window[arrayKey].length;
+                const currentArray = idPrefix === 'bukti_pembelian' ? currentBuktiMultiple : currentImagesBase64;
+                countLabel.innerText = currentArray.length;
             } else {
-                const compressed = await compressImage(files[0]);
-                currentBuktiBase64 = compressed;
+                const file = files[0];
+                const isPdf = file.type === 'application/pdf';
+                
+                if (isPdf && file.size > 2 * 1024 * 1024) {
+                    showToast("File PDF terlalu besar! Maksimal 2MB.", "rose");
+                    event.target.value = '';
+                    return;
+                }
+                
+                let fileData;
+                if (isPdf) fileData = await readFileAsBase64(file);
+                else fileData = await compressImage(file);
+                
+                currentBuktiBase64 = fileData;
                 const div = document.createElement('div');
                 div.className = 'preview-item';
-                div.innerHTML = `<img src="${compressed}"><div class="remove-photo-btn" onclick="removeSingleImage('${idPrefix}', event)"><i data-lucide="x" class="w-3 h-3"></i></div>`;
+                
+                if (isPdf) {
+                    div.innerHTML = `
+                        <div class="w-full h-full flex flex-col items-center justify-center bg-red-50 p-2">
+                            <i data-lucide="file-text" class="w-6 h-6 text-red-500 mb-1"></i>
+                            <span class="text-[8px] font-bold text-red-600 text-center leading-tight truncate w-full">PDF</span>
+                        </div>
+                        <div class="remove-photo-btn" onclick="removeSingleImage('${idPrefix}', event)"><i data-lucide="x" class="w-3 h-3"></i></div>
+                    `;
+                } else {
+                    div.innerHTML = `<img src="${fileData}"><div class="remove-photo-btn" onclick="removeSingleImage('${idPrefix}', event)"><i data-lucide="x" class="w-3 h-3"></i></div>`;
+                }
                 grid.appendChild(div);
                 countLabel.innerText = "1";
             }
@@ -1421,20 +1480,37 @@
             });
         }
 
+        // ✅ FUNGSI INI SUDAH DIPERBAIKI (TIDAK MENGGUNAKAN window[arrayKey])
         function removeImage(idPrefix, index, event) {
             event.stopPropagation();
-            const arrayKey = idPrefix === 'bukti_pembelian' ? 'currentBuktiMultiple' : 'currentImagesBase64';
-            window[arrayKey].splice(index, 1);
+            if (idPrefix === 'bukti_pembelian') currentBuktiMultiple.splice(index, 1);
+            else currentImagesBase64.splice(index, 1);
+            
             const grid = document.getElementById(`grid_${idPrefix}`);
             grid.innerHTML = '';
-            window[arrayKey].forEach((img, i) => {
+            
+            const currentArray = idPrefix === 'bukti_pembelian' ? currentBuktiMultiple : currentImagesBase64;
+            
+            currentArray.forEach((img, i) => {
                 const div = document.createElement('div');
                 div.className = 'preview-item';
-                div.innerHTML = `<img src="${img}"><div class="remove-photo-btn" onclick="removeImage('${idPrefix}', ${i}, event)"><i data-lucide="x" class="w-3 h-3"></i></div>`;
+                const isPdf = typeof img === 'string' && img.includes('data:application/pdf');
+                if (isPdf) {
+                    div.innerHTML = `
+                        <div class="w-full h-full flex flex-col items-center justify-center bg-red-50 p-2">
+                            <i data-lucide="file-text" class="w-6 h-6 text-red-500 mb-1"></i>
+                            <span class="text-[8px] font-bold text-red-600 text-center leading-tight truncate w-full">PDF</span>
+                        </div>
+                        <div class="remove-photo-btn" onclick="removeImage('${idPrefix}', ${i}, event)"><i data-lucide="x" class="w-3 h-3"></i></div>
+                    `;
+                } else {
+                    div.innerHTML = `<img src="${img}"><div class="remove-photo-btn" onclick="removeImage('${idPrefix}', ${i}, event)"><i data-lucide="x" class="w-3 h-3"></i></div>`;
+                }
                 grid.appendChild(div);
             });
-            document.getElementById(`count_${idPrefix}`).innerText = window[arrayKey].length;
-            if (window[arrayKey].length === 0) document.getElementById(`placeholder_${idPrefix}`).classList.remove('hidden');
+            
+            document.getElementById(`count_${idPrefix}`).innerText = currentArray.length;
+            if (currentArray.length === 0) document.getElementById(`placeholder_${idPrefix}`).classList.remove('hidden');
             lucide.createIcons();
         }
 
