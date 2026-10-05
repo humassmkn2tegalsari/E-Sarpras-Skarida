@@ -353,15 +353,23 @@
             }, 200);
         }
 
+        // ================= FUNGSI BARU: UPDATE BADGE JUMLAH DATA =================
+        function updateDataBadge(type, count) {
+            const badgeId = `badge-${type}`;
+            const badgeEl = document.getElementById(badgeId);
+            if (badgeEl) {
+                badgeEl.innerText = `${count} Data`;
+            }
+        }
+
         function renderInventarisDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
-            const totalData = allInventoryData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                     <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
                         <i data-lucide="package" class="w-5 h-5 text-indigo-500"></i> 
                         Dashboard Inventaris 
-                        <span class="ml-2 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                        <span id="badge-inventaris" class="ml-2 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-black">Memuat...</span>
                     </h3>
                     <button onclick="exportToExcel('Inventaris')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
@@ -384,13 +392,12 @@
 
         function renderBantuanDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
-            const totalData = allBantuanData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                     <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
                         <i data-lucide="gift" class="w-5 h-5 text-emerald-500"></i> 
                         Dashboard Bantuan 
-                        <span class="ml-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                        <span id="badge-bantuan" class="ml-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black">Memuat...</span>
                     </h3>
                     <button onclick="exportToExcel('Bantuan')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
@@ -411,13 +418,12 @@
 
         function renderRusakDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
-            const totalData = allRusakData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                     <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
                         <i data-lucide="triangle-alert" class="w-5 h-5 text-rose-500"></i> 
                         Dashboard Barang Rusak 
-                        <span class="ml-2 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                        <span id="badge-rusak" class="ml-2 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-[10px] font-black">Memuat...</span>
                     </h3>
                     <button onclick="exportToExcel('Rusak')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
@@ -437,13 +443,12 @@
 
         function renderPeminjamanDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
-            const totalData = allPeminjamanData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                     <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
                         <i data-lucide="hand-platter" class="w-5 h-5 text-amber-500"></i> 
                         Dashboard Peminjaman 
-                        <span class="ml-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                        <span id="badge-peminjaman" class="ml-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black">Memuat...</span>
                     </h3>
                     <button onclick="exportToExcel('Peminjaman')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
@@ -463,13 +468,12 @@
 
         function renderPengeluaranDashboard(container) {
             const isAdmin = currentUser && currentUser.role === 'admin';
-            const totalData = allPengeluaranData.length;
             container.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                     <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
                         <i data-lucide="package-minus" class="w-5 h-5 text-orange-500"></i> 
                         Dashboard Pengeluaran Barang 
-                        <span class="ml-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] font-black">${totalData} Data</span>
+                        <span id="badge-pengeluaran" class="ml-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] font-black">Memuat...</span>
                     </h3>
                     <button onclick="exportToExcel('Pengeluaran')" class="tap-scale px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Excel</button>
                 </div>
@@ -487,47 +491,66 @@
             fetchPengeluaranData();
         }
 
+        // ================= FETCH DATA + UPDATE BADGE =================
         async function fetchInventoryData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=Inventaris`);
                 const result = await res.json();
                 if (result.status === "success") {
                     allInventoryData = result.data;
+                    updateDataBadge('inventaris', allInventoryData.length); // ✅ Update badge setelah data dimuat
                     populateDateOptions('filterTanggal', allInventoryData, 'tanggal_perolehan');
                     applyFilter('inventaris');
                 }
             } catch (e) { document.getElementById('tbodyInventaris').innerHTML = `<tr><td colspan="15" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
+
         async function fetchBantuanData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=Bantuan`);
                 const result = await res.json();
                 if (result.status === "success") {
                     allBantuanData = result.data;
+                    updateDataBadge('bantuan', allBantuanData.length); // ✅ Update badge setelah data dimuat
                     populateDateOptions('filterBantuanTanggal', allBantuanData, 'tanggal_perolehan');
                     applyFilter('bantuan');
                 }
             } catch (e) { document.getElementById('tbodyBantuan').innerHTML = `<tr><td colspan="12" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
+
         async function fetchRusakData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=LaporanRusak`);
                 const result = await res.json();
-                if (result.status === "success") { allRusakData = result.data; applyFilter('rusak'); }
+                if (result.status === "success") { 
+                    allRusakData = result.data; 
+                    updateDataBadge('rusak', allRusakData.length); // ✅ Update badge setelah data dimuat
+                    applyFilter('rusak'); 
+                }
             } catch (e) { document.getElementById('tbodyRusak').innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
+
         async function fetchPeminjamanData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=Peminjaman`);
                 const result = await res.json();
-                if (result.status === "success") { allPeminjamanData = result.data; applyFilter('peminjaman'); }
+                if (result.status === "success") { 
+                    allPeminjamanData = result.data; 
+                    updateDataBadge('peminjaman', allPeminjamanData.length); // ✅ Update badge setelah data dimuat
+                    applyFilter('peminjaman'); 
+                }
             } catch (e) { document.getElementById('tbodyPeminjaman').innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
+
         async function fetchPengeluaranData() {
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getData&sheet=Pengeluaran`);
                 const result = await res.json();
-                if (result.status === "success") { allPengeluaranData = result.data; applyFilter('pengeluaran'); }
+                if (result.status === "success") { 
+                    allPengeluaranData = result.data; 
+                    updateDataBadge('pengeluaran', allPengeluaranData.length); // ✅ Update badge setelah data dimuat
+                    applyFilter('pengeluaran'); 
+                }
             } catch (e) { document.getElementById('tbodyPengeluaran').innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-bold">Gagal memuat data</td></tr>`; }
         }
         
