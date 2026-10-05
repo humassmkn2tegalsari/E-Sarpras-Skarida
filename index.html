@@ -62,7 +62,6 @@
         .table-container { overflow-x: auto; }
         .custom-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         
-        /* HEADER TABEL STICKY & RATA TENGAH */
         .custom-table th { 
             background: rgba(240, 244, 255, 0.95); 
             backdrop-filter: blur(8px);
@@ -120,7 +119,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT STATUS -->
     <div id="statusModal" class="hidden fixed inset-0 z-[200] modal-backdrop flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-md rounded-[2rem] overflow-hidden modal-slide-in bg-white/95">
             <div class="bg-gradient-to-r from-indigo-500 to-purple-500 p-6 relative overflow-hidden">
@@ -142,7 +140,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT DATA -->
     <div id="editModal" class="hidden fixed inset-0 z-[200] modal-backdrop flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-md rounded-[2rem] overflow-hidden modal-slide-in bg-white/95 max-h-[90vh] flex flex-col">
             <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-6 relative overflow-hidden flex-shrink-0">
@@ -198,7 +195,6 @@
         let kodeBarangData = [];
         let currentEditItem = null, selectedNewStatus = null, currentEditRow = null, currentEditSheet = null;
         
-        // ================= PAGINATION STATE =================
         let currentPageState = { inventaris: 1, bantuan: 1, rusak: 1, peminjaman: 1, pengeluaran: 1 };
         const ROWS_PER_PAGE = 10;
 
@@ -555,13 +551,11 @@
             });
         }
 
-        // ================= FILTER HANDLER (RESET PAGE SAAT FILTER BERUBAH) =================
         function handleFilterChange(type) {
-            currentPageState[type] = 1; // Reset ke halaman 1 HANYA saat filter diubah
-            applyFilter(type); // Lalu render data
+            currentPageState[type] = 1;
+            applyFilter(type);
         }
 
-        // ================= APPLY FILTER (TIDAK MERESet PAGE) =================
         function applyFilter(type) {
             if (type === 'inventaris') {
                 const f = { nama: document.getElementById('filterNama').value.toLowerCase(), tanggal: document.getElementById('filterTanggal').value, sumber: document.getElementById('filterSumber').value, kondisi: document.getElementById('filterKondisi').value, lokasi: document.getElementById('filterLokasi').value.toLowerCase() };
@@ -598,7 +592,7 @@
             else if (type === 'rusak') ['filterRusakNama', 'filterRusakLokasi'].forEach(id => document.getElementById(id).value = '');
             else if (type === 'peminjaman') ['filterPinjamNama', 'filterPinjamPeminjam'].forEach(id => document.getElementById(id).value = '');
             else if (type === 'pengeluaran') ['filterKeluarNama', 'filterKeluarPenerima'].forEach(id => document.getElementById(id).value = '');
-            handleFilterChange(type); // Gunakan handleFilterChange untuk reset page juga
+            handleFilterChange(type);
         }
 
         function getActionButtons(sheet, row) {
@@ -613,6 +607,15 @@
                     </button>
                 </div>
             </td>`;
+        }
+
+        function getTotalData(type) {
+            if (type === 'inventaris') return allInventoryData.length;
+            if (type === 'bantuan') return allBantuanData.length;
+            if (type === 'rusak') return allRusakData.length;
+            if (type === 'peminjaman') return allPeminjamanData.length;
+            if (type === 'pengeluaran') return allPengeluaranData.length;
+            return 0;
         }
 
         function renderPagination(type, totalPages, currentPage, totalFilteredData) {
@@ -633,8 +636,15 @@
 
             const start = (currentPage - 1) * ROWS_PER_PAGE + 1;
             const end = Math.min(currentPage * ROWS_PER_PAGE, totalFilteredData);
-            const prevDisabled = currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100';
-            const nextDisabled = currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-100';
+            
+            const prevDisabled = currentPage === 1 
+                ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+                : 'hover:bg-slate-100';
+            const nextDisabled = currentPage === totalPages 
+                ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+                : 'hover:bg-slate-100';
+            const prevDisabledAttr = currentPage === 1 ? 'disabled' : '';
+            const nextDisabledAttr = currentPage === totalPages ? 'disabled' : '';
 
             container.innerHTML = `
                 <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
@@ -642,11 +652,11 @@
                     <span>Menampilkan <span class="text-indigo-600">${start}-${end}</span> dari <span class="text-indigo-600">${totalFilteredData}</span> data</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="changePage('${type}', -1)" class="tap-scale px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 ${prevDisabled} transition-colors flex items-center gap-1">
+                    <button onclick="changePage('${type}', -1)" ${prevDisabledAttr} class="tap-scale px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 ${prevDisabled} transition-colors flex items-center gap-1">
                         <i data-lucide="chevron-left" class="w-3 h-3"></i> Sebelumnya
                     </button>
                     <span class="text-xs font-bold text-slate-500 px-2">Halaman ${currentPage} dari ${totalPages}</span>
-                    <button onclick="changePage('${type}', 1)" class="tap-scale px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 ${nextDisabled} transition-colors flex items-center gap-1">
+                    <button onclick="changePage('${type}', 1)" ${nextDisabledAttr} class="tap-scale px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 ${nextDisabled} transition-colors flex items-center gap-1">
                         Selanjutnya <i data-lucide="chevron-right" class="w-3 h-3"></i>
                     </button>
                 </div>
@@ -655,7 +665,16 @@
         }
 
         function changePage(type, direction) {
-            currentPageState[type] += direction;
+            const currentPage = currentPageState[type] || 1;
+            
+            if (direction === -1 && currentPage <= 1) return;
+            
+            const totalData = getTotalData(type);
+            const totalPages = Math.ceil(totalData / ROWS_PER_PAGE);
+            
+            if (direction === 1 && currentPage >= totalPages) return;
+            
+            currentPageState[type] = currentPage + direction;
             applyFilter(type);
         }
 
@@ -882,7 +901,6 @@
             renderPagination('pengeluaran', totalPages, currentPage, reversedData.length);
         }
 
-        // ================= MODAL EDIT STATUS =================
         function openStatusModal(sheet, uniqueId, itemName, currentStatus, statusColumn, availableStatuses) {
             if (currentUser.role !== 'admin') { showToast("Hanya admin yang dapat mengubah status!", "rose"); return; }
             currentEditItem = { sheet, uniqueId, itemName, currentStatus, statusColumn };
@@ -939,7 +957,6 @@
             finally { btn.disabled = false; btn.innerHTML = originalHTML; }
         }
 
-        // ================= MODAL EDIT DATA =================
         function openEditModalById(sheet, id) {
             let data = [];
             if (sheet === 'Inventaris') data = allInventoryData;
@@ -1073,7 +1090,6 @@
             } catch (err) { showToast("Gagal terhubung ke server!", "rose"); }
         }
 
-        // ================= EXPORT EXCEL =================
         function exportToExcel(type) {
             let data, headers, fileName, urlColumns;
             if (type === 'Inventaris') {
@@ -1141,7 +1157,6 @@
             showToast(`File Excel ${type} berhasil diunduh dengan ${data.length} data!`, "emerald");
         }
 
-        // ================= FORM RENDERING =================
         function renderFormInputBarang(container) {
             container.innerHTML = `
                 <h2 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2"><i data-lucide="package-plus" class="w-5 h-5 text-indigo-500"></i> Input Barang/Bahan</h2>
@@ -1409,7 +1424,6 @@
             document.getElementById(`input_${idPrefix}`).value = '';
         }
 
-        // ================= SUBMIT FUNCTIONS =================
         async function submitInventaris() {
             const jenis = document.getElementById('inv_jenis').value;
             const nama = document.getElementById('inv_nama').value;
